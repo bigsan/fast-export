@@ -11,6 +11,13 @@ import re
 import sys
 import os
 
+try:
+  filename_encoding=os.environ.get("FILENAMEENCODING")
+  if not filename_encoding:
+      filename_encoding='UTF-8'
+except:
+  filename_encoding='UTF-8'
+
 if sys.platform == "win32":
   # On Windows, sys.stdout is initially opened in text mode, which means that
   # when a LF (\n) character is written to sys.stdout, it will be converted
@@ -128,7 +135,8 @@ def export_file_contents(ctx,manifest,files):
       sys.stderr.write('Skip %s\n' % (file))
       continue
     d=ctx.filectx(file).data()
-    wr('M %s inline %s' % (gitmode(manifest.flags(file)),file))
+    u8fn=file.decode(filename_encoding).encode('utf8')
+    wr('M %s inline %s' % (gitmode(manifest.flags(file)),u8fn))
     wr('data %d' % len(d)) # had some trouble with size()
     wr(d)
     count+=1
